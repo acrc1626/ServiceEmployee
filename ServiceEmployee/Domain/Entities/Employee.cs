@@ -1,4 +1,4 @@
-﻿namespace ServiceEmployee.Model
+﻿namespace ServiceEmployee.Model.Entities
 {
     public class Employee
     {

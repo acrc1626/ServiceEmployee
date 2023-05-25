@@ -1,48 +1,73 @@
 ﻿namespace ServiceEmployee.DataAcces.Service
 {
-    public abstract class ServiceEmployees
+
+    using Microsoft.AspNetCore.DataProtection.KeyManagement;
+    using Newtonsoft.Json;
+    using ServiceEmployee.DataAcces.Entities;
+    using ServiceEmployee.DataAcces.Interface;
+    using System.Collections.Generic;
+
+    public class ServiceEmployees : IServiceEmployees
     {
-        protected readonly HttpClient _client;
-        protected readonly IConfiguration _configuration;
-
-        protected ServiceEmployees(IConfiguration configuration)
+        private async Task<dynamic> GetApiResponse(string service)
         {
-            _configuration = configuration;
-            _client = new HttpClient();
-        }
-
-        protected virtual string GetApiUrl(string key, params object[] args)
-        {
-            string apiUrl = _configuration["UrlApis:" + key];
-            return string.Format(apiUrl, args);
-
-        }
-
-        protected virtual string GetApiResponse(string url)
-        {
-            string responseData="";
-
+            HttpClient httpClient = new HttpClient();
+            dynamic message = null;
             try
             {
-                HttpResponseMessage respose = _client.GetAsync(url).Result;
-                respose.EnsureSuccessStatusCode();
-                responseData = respose.Content.ReadAsStringAsync().Result;
+                var response = httpClient.GetAsync(service).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return message;
+                }
+                var responseData = response.Content.ReadAsStringAsync().Result;
+                return message = JsonConvert.DeserializeObject<dynamic>(responseData);
+            }
+
+            catch (TaskCanceledException)
+            {
+                return message;
+            }
+
+        }
+
+
+        public List<EmployeeService> GetEmployees(string service)
+        {
+            try
+            {
+                dynamic response = this.GetApiResponse(service).ConfigureAwait(false).GetAwaiter().GetResult();
+                if (response != null)
+                {
+                    try
+                    {
+                        return JsonConvert.DeserializeObject<List<EmployeeService>>(
+                                    response["data"].ToString(),
+                                    new JsonSerializerSettings());
+                    }
+
+                    catch (Exception)
+                    {
+                        List<EmployeeService> employees = new List<EmployeeService>();
+                        var objecto = JsonConvert.DeserializeObject<EmployeeService>(
+                                     response["data"].ToString(),
+                                     new JsonSerializerSettings());
+                        employees.Add(objecto);
+                        return employees;
+
+                    }
+
+                }
 
             }
-            catch (HttpRequestException ex)
+
+            catch (Exception)
             {
-                // Manejar la excepción de solicitud HTTP no exitosa
-                Console.WriteLine("Error en la solicitud HTTP: " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                // Manejar otras excepciones
-                Console.WriteLine("Error: " + ex.Message);
                 throw;
             }
 
-            return responseData;
-
+            return null;
         }
 
     }

@@ -1,17 +1,22 @@
 ﻿namespace ServiceEmployee.Controllers
 {
+    using Microsoft.AspNetCore.DataProtection.KeyManagement;
     using Microsoft.AspNetCore.Mvc;
-    using ServiceEmployee.DataAcces.Service;
-    using ServiceEmployee.Model;
+    using Microsoft.Extensions.Configuration;
+    using ServiceEmployee.Domain;
+    using ServiceEmployee.Model.Entities;
 
     public class EmployeeController : Controller
     {
-        private readonly EmployeesData _employeesData;
         private readonly EmployeeBusiness _employeeBusiness;
-        public EmployeeController(EmployeesData employeesData, EmployeeBusiness employeeBusiness)
+        private readonly IConfiguration _configuration;
+        private string operation;
+
+        public EmployeeController( EmployeeBusiness employeeBusiness, IConfiguration configuration)
         {
-            _employeesData = employeesData;
             _employeeBusiness = employeeBusiness;
+            _configuration = configuration;
+            operation = "Employees";
         }
 
         [HttpGet]
@@ -20,8 +25,9 @@
         public dynamic GetEmployees()
         {
             List<Employee> lstEmployee = new List<Employee>();
-            lstEmployee = _employeeBusiness.GetEmployees();
-            if (lstEmployee.Any())
+            string urlService = _configuration["UrlApis:" + operation];
+            lstEmployee = _employeeBusiness.GetEmployees(urlService + "employees");
+            if (lstEmployee != null)
             {
                 return Ok(lstEmployee);
             }
@@ -36,12 +42,13 @@
         public dynamic GetEmployee(int id)
         {
             List<Employee> lstEmployee = new List<Employee>();
-            lstEmployee = _employeeBusiness.GetEmployeeId(id);
-            if (lstEmployee.Any())
+            string urlService = _configuration["UrlApis:" + operation];
+            lstEmployee = _employeeBusiness.GetEmployees(urlService + "employee/" + id);
+            if (lstEmployee != null)
             {
                 return Ok(lstEmployee);
-
             }
+
             return BadRequest();
         }
     }

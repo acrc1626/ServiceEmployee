@@ -1,5 +1,5 @@
 using ServiceEmployee.DataAcces.Service;
-using ServiceEmployee.Model;
+using ServiceEmployee.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<EmployeesData>();
 builder.Services.AddScoped<EmployeeBusiness>();
 
 
