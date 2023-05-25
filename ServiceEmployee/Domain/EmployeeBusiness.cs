@@ -2,21 +2,21 @@
 {
     using ServiceEmployee.DataAcces.Entities;
     using ServiceEmployee.DataAcces.Service;
+    using ServiceEmployee.Domain.Interface;
     using ServiceEmployee.Domain.Validation;
     using ServiceEmployee.Model.Entities;
-    public class EmployeeBusiness
+    public class EmployeeBusiness : EmployeeValidation, IEmployeeBusiness
     {
         public List<Employee> GetEmployees(string Urlservice)
         {
             ServiceEmployees serviceEmployees = new ServiceEmployees();
-            EmployeeValidation employeeValidation = new EmployeeValidation();
             try
             {
                 List<EmployeeService> employees = serviceEmployees.GetEmployees(Urlservice);
                 if (employees != null)
                 {
-                    return employeeValidation.MapeerEmployees(employees);
-                }              
+                    return this.MapeerEmployees(employees);
+                }             
                 
             }
             catch (Exception ex)

@@ -1,10 +1,10 @@
-﻿using ServiceEmployee.Model.Entities;
-
-namespace ServiceEmployee.Domain.Interface
+﻿namespace ServiceEmployee.Domain.Interface
 {
+    using ServiceEmployee.Model.Entities;
     public interface IEmployeeBusiness
     {
-        List<Employee> GetEmployees();
-        List<Employee> GetEmployeeId(int id);
+        List<Employee> GetEmployees(string Urlservice);
+
     }
+
 }
